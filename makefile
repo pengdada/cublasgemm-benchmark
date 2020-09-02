@@ -1,17 +1,17 @@
+CUDA_HOME?=$(shell echo ~)/local/cuda-10.0
+CC := nvcc 
 CUDA_ARCH_FLAGS ?= -arch=sm_35
-CC_FLAGS += -lcublas
-# CC_FLAGS += -lcurand
-# CC_FLAGS += -Xptxas
-# CC_FLAGS += -v
-# CC_FLAGS += -O3
-CC_FLAGS += --std=c++11 $(CUDA_ARCH_FLAGS)
+CFLAGS := -g --std=c++11 -lpthread 
+CFLAGS += -I$(CUDA_HOME)/include 
+CFLAGS += -L$(CUDA_HOME)/lib64 -lcuda -lcublas
+CFLAGS += -L$(CUDA_HOME)/targets/x86_64-linux/lib/stubs/ -lnvidia-ml
 
-EXE = gemm
+TARGET := gemm
+SRCS := $(wildcard *.cpp)
+OBJS := $(patsubst %cpp,%o,$(SRCS))
 
-all: $(EXE)
-
-% : %.cu
-	nvcc $< $(CC_FLAGS) $(LIB_FLAGS) -o $@
-
+all:
+	$(CC) $(CFLAGS) *.cpp -o $(TARGET) 
 clean:
-	rm -f $(EXE)
+	rm -rf $(TARGET) *.o
+
